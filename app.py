@@ -3,15 +3,14 @@ import pandas as pd
 import datetime
 import re
 
-# Page Configuration & Styles
+# Page Configuration
 st.set_page_config(page_title="MCM Reading Hub", page_icon="📚", layout="wide")
+
+# CSS Styling
 st.markdown("""
     <style>
     .stApp { background-color: #FDFBF7; color: #2C221E; }
     h1, h2, h3 { color: #C85A32 !important; font-weight: 700; }
-    .stTabs [data-baseweb="tab-list"] { gap: 6px; background-color: #F4EFEB; padding: 6px; border-radius: 12px; }
-    .stTabs [data-baseweb="tab"] { height: 42px; border-radius: 8px; color: #2C221E; font-weight: 600; }
-    .stTabs [aria-selected="true"] { background-color: #C85A32 !important; color: #FFFFFF !important; }
     .book-card { background-color: #F4EFEB; border-left: 5px solid #6B705C; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
     .book-title { font-size: 1.05rem; font-weight: bold; color: #2C221E; }
     .book-author { font-size: 0.85rem; color: #6B705C; }
@@ -20,13 +19,14 @@ st.markdown("""
 
 st.title("📺 MCM Reading Hub")
 
-def extract_series_num(title):
-    match = re.search(r'#(\d+)', str(title))
-    return int(match.group(1)) if match else 1
-
+# Tabs
 tab_home, tab_next, tab_timeline, tab_shelves, tab_upload = st.tabs([
     "🏠 Home", "🎯 Mix", "📊 Timeline", "📚 Shelves", "⚙️ Settings"
 ])
+
+def extract_series_num(title):
+    match = re.search(r'#(\d+)', str(title))
+    return int(match.group(1)) if match else 1
 
 with tab_upload:
     st.subheader("⚙️ Data & App Settings")
@@ -35,10 +35,12 @@ with tab_upload:
         st.session_state['df'] = pd.read_csv(uploaded_file)
         st.success("CSV loaded!")
     st.link_button("🔗 Edit Code on GitHub", "https://github.com/", use_container_width=True)
-    if 'df' in st.session_state:
+
+if 'df' in st.session_state:
     df = st.session_state['df']
     tbr_df = df[df['Exclusive Shelf'] == 'to-read'].copy()
     read_df = df[df['Exclusive Shelf'] == 'read'].copy()
+    
     tbr_df['Pages'] = pd.to_numeric(tbr_df['Number of Pages'], errors='coerce').fillna(300)
     tbr_df['Series_Num'] = tbr_df['Title'].apply(extract_series_num)
     tbr_df['Priority_Rank'] = tbr_df['Bookshelves'].apply(lambda x: 1 if 'sooner' in str(x).lower() else (2 if 'soon' in str(x).lower() else (3 if any(y in str(x).lower() for y in ['home-library', 'kindle']) else 4)))
