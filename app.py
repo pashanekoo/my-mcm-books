@@ -273,5 +273,5 @@ if 'df' in st.session_state:
 
 else:
     with tab_home:
-        st.info("👆 Welcome! Please go to the **'⚙️ Settings & Upload'** tab and upload your Goodreads CSV file (
+        st.info("
             
